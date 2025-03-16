@@ -122,6 +122,20 @@ export default function PositionsManager({ electionId }: PositionsManagerProps) 
                     <h3 className="text-lg font-medium text-gray-900">{position.title}</h3>
                     <p className="text-sm text-gray-500">{position.description}</p>
                   </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => {
+                      // Placeholder for delete position - to be implemented
+                      toast({
+                        title: "Notice",
+                        description: "Position deletion will be implemented in the next update",
+                      });
+                    }}
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
             </div>

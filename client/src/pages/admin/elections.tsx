@@ -25,6 +25,19 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+// Component to count and display the number of positions for an election
+function PositionCounter({ electionId }: { electionId: number }) {
+  const { data: positions, isLoading } = useQuery({
+    queryKey: ['/api/admin/elections', electionId, 'positions'],
+    enabled: !!electionId,
+  });
+
+  if (isLoading) return <>Loading...</>;
+  
+  const count = positions?.length || 0;
+  return <>{count} {count === 1 ? 'position' : 'positions'}</>;
+}
+
 interface Election {
   id: number;
   title: string;
@@ -244,11 +257,11 @@ export default function Elections() {
                         </div>
                         <div className="mt-4 flex-shrink-0 sm:mt-0 sm:ml-5">
                           <div className="flex -space-x-1 overflow-hidden">
-                            <div className="bg-gray-200 text-xs text-gray-800 px-2 py-1 rounded">
-                              4 positions
+                            <div className="bg-gray-200 text-xs text-gray-800 px-2 py-1 rounded ml-2">
+                              <PositionCounter electionId={election.id} />
                             </div>
                             <div className="ml-2 bg-gray-200 text-xs text-gray-800 px-2 py-1 rounded">
-                              {election.status === 'completed' ? '1,245 votes' : '0 candidates'}
+                              {election.status === 'completed' ? 'View Results' : 'Manage Candidates'}
                             </div>
                           </div>
                         </div>
