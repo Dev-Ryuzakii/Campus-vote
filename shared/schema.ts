@@ -176,6 +176,15 @@ export const studentLoginSchema = z.object({
   role: z.enum(['candidate', 'voter']),
 });
 
+export const registerSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(['candidate', 'voter']),
+  studentId: z.string().min(1, "Student ID is required"),
+  name: z.string().min(1, "Full name is required"),
+  department: z.string().optional(),
+});
+
 export const candidateApplicationSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),

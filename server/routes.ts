@@ -5,6 +5,7 @@ import { parse } from 'csv-parse/sync';
 import { 
   loginSchema, 
   studentLoginSchema, 
+  registerSchema,
   candidateApplicationSchema, 
   voteSubmissionSchema, 
   csvVoterSchema,
