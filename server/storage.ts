@@ -87,15 +87,19 @@ export class MemStorage implements IStorage {
       eligibleVoters: 1
     };
 
-    // Initialize with admin user
-    this.createUser({
+    // Initialize with admin user (ID 1)
+    const adminUser: User = {
+      id: 1,
       username: 'admin',
       password: 'admin123', // In real app, this should be hashed
       role: 'admin',
       studentId: null,
       department: null,
-      name: 'Administrator'
-    });
+      name: 'Administrator',
+      hasVoted: false
+    };
+    this.users.set(1, adminUser);
+    this.currentIds.users = 2; // Next ID will be 2
   }
 
   // User operations
