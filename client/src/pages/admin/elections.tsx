@@ -62,7 +62,13 @@ export default function Elections() {
 
   const createElectionMutation = useMutation({
     mutationFn: async (data: CreateElectionFormData) => {
-      return await apiRequest('POST', '/api/admin/elections', data);
+      // Convert Date objects to ISO strings for server-side processing
+      const formattedData = {
+        ...data,
+        startDate: data.startDate ? data.startDate.toISOString() : null,
+        endDate: data.endDate ? data.endDate.toISOString() : null
+      };
+      return await apiRequest('POST', '/api/admin/elections', formattedData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/elections'] });
@@ -84,7 +90,13 @@ export default function Elections() {
 
   const updateElectionMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<CreateElectionFormData> }) => {
-      return await apiRequest('PATCH', `/api/admin/elections/${id}`, data);
+      // Convert Date objects to ISO strings for server-side processing
+      const formattedData = {
+        ...data,
+        startDate: data.startDate ? data.startDate.toISOString() : null,
+        endDate: data.endDate ? data.endDate.toISOString() : null
+      };
+      return await apiRequest('PATCH', `/api/admin/elections/${id}`, formattedData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/elections'] });
