@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+mport type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { parse } from 'csv-parse/sync';
@@ -479,18 +479,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!req.body.studentId || !req.body.name || !req.body.electionId) {
         return res.status(400).json({ message: 'Student ID, name, and election ID are required' });
       }
+
+      // Check if voter already exists for this election
+      const existingVoter = await storage.getEligibleVoterByStudentId(req.body.studentId);
+      if (existingVoter && existingVoter.electionId === parseInt(req.body.electionId)) {
+        return res.status(400).json({ message: 'Student is already eligible for this election' });
+      }
       
       const voter = await storage.createEligibleVoter({
         studentId: req.body.studentId,
         name: req.body.name,
-        department: req.body.department,
+        department: req.body.department || '',
         electionId: parseInt(req.body.electionId)
       });
       
       return res.status(201).json(voter);
     } catch (error) {
       console.error('Create voter error:', error);
-      return res.status(400).json({ message: 'Invalid voter data' });
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+      return res.status(400).json({ message: 'Failed to add voter' });
     }
   });
 
