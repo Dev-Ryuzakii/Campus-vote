@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -8,7 +9,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter
+  DialogFooter,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -127,7 +129,6 @@ export default function PositionsManager({ electionId }: PositionsManagerProps) 
                     size="sm" 
                     className="text-red-500 hover:text-red-700 hover:bg-red-50"
                     onClick={() => {
-                      // Placeholder for delete position - to be implemented
                       toast({
                         title: "Notice",
                         description: "Position deletion will be implemented in the next update",
@@ -147,44 +148,37 @@ export default function PositionsManager({ electionId }: PositionsManagerProps) 
         </div>
       )}
 
-      {/* Create Position Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Position</DialogTitle>
+            <DialogDescription>
+              Create a new position for candidates to run for in this election.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreateSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
                 <Label htmlFor="title">Position Title</Label>
                 <Input
                   id="title"
-                  placeholder="e.g. President, Treasurer"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
+                  placeholder="e.g., President"
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
-                  placeholder="Describe the responsibilities of this position"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
+                  placeholder="Describe the responsibilities and requirements for this position"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => {
-                  setShowCreateDialog(false);
-                  resetForm();
-                }}
-              >
+              <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
                 Cancel
               </Button>
               <Button 
