@@ -263,7 +263,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/admin/elections', requireRole(['admin']), async (req: Request, res: Response) => {
     try {
-      const validatedData = insertElectionSchema.parse(req.body);
+      // Parse dates from ISO strings to Date objects
+      const formData = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : null,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : null
+      };
+      
+      const validatedData = insertElectionSchema.parse(formData);
       const election = await storage.createElection(validatedData);
       return res.status(201).json(election);
     } catch (error) {
@@ -289,7 +296,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/admin/elections/:id', requireRole(['admin']), async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = insertElectionSchema.partial().parse(req.body);
+      
+      // Parse dates from ISO strings to Date objects
+      const formData = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : null,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : null
+      };
+      
+      const validatedData = insertElectionSchema.partial().parse(formData);
       const updated = await storage.updateElection(id, validatedData);
       if (!updated) {
         return res.status(404).json({ message: 'Election not found' });
@@ -314,6 +329,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get('/api/admin/elections/:id/positions', requireRole(['admin']), async (req: Request, res: Response) => {
+    try {
+      const electionId = parseInt(req.params.id);
+      const positions = await storage.getPositions(electionId);
+      return res.status(200).json(positions);
+    } catch (error) {
+      console.error('Get positions error:', error);
+      return res.status(500).json({ message: 'Failed to retrieve positions' });
+    }
+  });
+  
+  // Public endpoint to get positions for an election (for candidate application)
+  app.get('/api/elections/:id/positions', requireAuth, async (req: Request, res: Response) => {
     try {
       const electionId = parseInt(req.params.id);
       const positions = await storage.getPositions(electionId);

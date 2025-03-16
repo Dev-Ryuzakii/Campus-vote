@@ -68,7 +68,7 @@ export default function ApplicationForm({ studentId }: ApplicationFormProps) {
 
   // Query for positions once an election is selected
   const { data: positions, isLoading: positionsLoading } = useQuery({
-    queryKey: ['/api/admin/elections', form.watch('electionId'), 'positions'],
+    queryKey: ['/api/elections', form.watch('electionId'), 'positions'],
     enabled: !!form.watch('electionId'),
   });
 
