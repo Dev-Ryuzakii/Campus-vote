@@ -194,6 +194,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     return res.status(200).json({ user: null });
   });
+  
+  app.post('/api/auth/register', async (req: Request, res: Response) => {
+    try {
+      const validatedData = registerSchema.parse(req.body);
+      const { username, password, role, studentId, name, department } = validatedData;
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByStudentId(studentId);
+      if (existingUser) {
+        return res.status(400).json({ message: 'A user with this student ID already exists' });
+      }
+      
+      // For voters, verify they are in the eligible voters list
+      if (role === 'voter') {
+        const eligibleVoter = await storage.getEligibleVoterByStudentId(studentId);
+        if (!eligibleVoter) {
+          return res.status(401).json({ 
+            message: 'Your student ID is not in the eligible voters list. Please contact your administrator.' 
+          });
+        }
+      }
+      
+      // Create the user
+      const user = await storage.createUser({
+        username,
+        password,
+        role,
+        studentId,
+        name,
+        department: department || null
+      });
+      
+      // Set session for the new user
+      req.session.user = {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        studentId: user.studentId
+      };
+      
+      return res.status(201).json({
+        message: 'Registration successful',
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+          studentId: user.studentId
+        }
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      return res.status(400).json({ message: 'Invalid registration data' });
+    }
+  });
 
   // ----- Admin Routes -----
   // Elections
