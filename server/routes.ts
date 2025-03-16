@@ -561,7 +561,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create candidate application
       const candidate = await storage.createCandidate({
         userId: user.id,
-        positionId,
+        position: validatedData.position,
         manifesto,
         status: 'pending',
         electionId
