@@ -4,6 +4,7 @@ import AdminSidebar from "@/components/AdminSidebar";
 import { Button } from "@/components/ui/button";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import { 
   Dialog, 
   DialogContent, 
@@ -46,6 +47,7 @@ export default function Elections() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedElection, setSelectedElection] = useState<Election | null>(null);
+  const [, setLocation] = useLocation();
   const [formData, setFormData] = useState<CreateElectionFormData>({
     title: '',
     description: '',
@@ -54,7 +56,7 @@ export default function Elections() {
   
   const { toast } = useToast();
 
-  const { data: elections, isLoading, error } = useQuery({
+  const { data: elections = [], isLoading, error } = useQuery<Election[]>({
     queryKey: ['/api/admin/elections'],
   });
 
@@ -203,7 +205,10 @@ export default function Elections() {
                       <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
                         <div>
                           <div className="flex text-sm">
-                            <p className="font-medium text-blue-600 truncate">{election.title}</p>
+                            <p className="font-medium text-blue-600 truncate cursor-pointer hover:underline" 
+                              onClick={() => setLocation(`/admin/elections/${election.id}`)}>
+                                {election.title}
+                            </p>
                             <p className="ml-1 flex-shrink-0 font-normal text-gray-500">
                               ({election.status})
                             </p>

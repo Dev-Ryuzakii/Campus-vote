@@ -8,11 +8,12 @@ import AdminDashboard from "@/pages/admin/index";
 import CandidateDashboard from "@/pages/candidate/index";
 import VoterDashboard from "@/pages/voter/index";
 import { apiRequest } from "./lib/queryClient";
-import LoginHome from "@/pages/auth/index";
-import AdminLogin from "@/pages/auth/admin";
-import VoterLogin from "@/pages/auth/voter";
-import CandidateLogin from "@/pages/auth/candidate";
+import LoginHome from "./pages/auth/index";
+import AdminLogin from "./pages/auth/admin";
+import VoterLogin from "./pages/auth/voter";
+import CandidateLogin from "./pages/auth/candidate";
 import AdminElections from "@/pages/admin/elections";
+import ElectionDetail from "@/pages/admin/election-detail";
 import AdminCandidates from "@/pages/admin/candidates";
 import AdminVoters from "@/pages/admin/voters";
 import AdminResults from "@/pages/admin/results";
@@ -92,7 +93,7 @@ function Router() {
   return (
     <Switch>
       {/* Public routes accessible to unauthenticated users */}
-      <Route path="/" exact>
+      <Route path="/">
         {user ? <Redirect to={`/${user.role}`} /> : <LoginHome />}
       </Route>
       <Route path="/auth/admin">
@@ -111,6 +112,9 @@ function Router() {
       </Route>
       <Route path="/admin/elections">
         <ProtectedRoute user={user} expectedRole="admin" component={AdminElections} onLogout={handleLogout} />
+      </Route>
+      <Route path="/admin/elections/:id">
+        <ProtectedRoute user={user} expectedRole="admin" component={ElectionDetail} onLogout={handleLogout} />
       </Route>
       <Route path="/admin/candidates">
         <ProtectedRoute user={user} expectedRole="admin" component={AdminCandidates} onLogout={handleLogout} />
