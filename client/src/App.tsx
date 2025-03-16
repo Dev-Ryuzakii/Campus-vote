@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -12,12 +12,41 @@ import LoginHome from "@/pages/auth/index";
 import AdminLogin from "@/pages/auth/admin";
 import VoterLogin from "@/pages/auth/voter";
 import CandidateLogin from "@/pages/auth/candidate";
+import AdminElections from "@/pages/admin/elections";
+import AdminCandidates from "@/pages/admin/candidates";
+import AdminVoters from "@/pages/admin/voters";
+import AdminResults from "@/pages/admin/results";
 
 type User = {
   id: number;
   username: string;
   role: string;
   studentId?: string;
+};
+
+// A route guard to handle authenticated routes
+const ProtectedRoute = ({ 
+  user, 
+  expectedRole, 
+  component: Component, 
+  onLogout,
+  ...rest 
+}: { 
+  user: User | null; 
+  expectedRole: string; 
+  component: React.ComponentType<any>; 
+  onLogout: () => void;
+  [key: string]: any 
+}) => {
+  if (!user) {
+    return <Redirect to="/" />;
+  }
+  
+  if (user.role !== expectedRole) {
+    return <Redirect to={`/${user.role}`} />;
+  }
+  
+  return <Component user={user} onLogout={onLogout} {...rest} />;
 };
 
 function Router() {
@@ -60,24 +89,50 @@ function Router() {
     );
   }
   
-  // If user is logged in, redirect to appropriate dashboard
-  if (user) {
-    if (user.role === 'admin') {
-      return <AdminDashboard user={user} onLogout={handleLogout} />;
-    } else if (user.role === 'candidate') {
-      return <CandidateDashboard user={user} onLogout={handleLogout} />;
-    } else if (user.role === 'voter') {
-      return <VoterDashboard user={user} onLogout={handleLogout} />;
-    }
-  }
-  
-  // If user is not logged in, show auth routes
   return (
     <Switch>
-      <Route path="/" component={() => <LoginHome />} />
-      <Route path="/auth/admin" component={() => <AdminLogin onLoginSuccess={setUser} />} />
-      <Route path="/auth/voter" component={() => <VoterLogin onLoginSuccess={setUser} />} />
-      <Route path="/auth/candidate" component={() => <CandidateLogin onLoginSuccess={setUser} />} />
+      {/* Public routes accessible to unauthenticated users */}
+      <Route path="/" exact>
+        {user ? <Redirect to={`/${user.role}`} /> : <LoginHome />}
+      </Route>
+      <Route path="/auth/admin">
+        {user ? <Redirect to="/admin" /> : <AdminLogin onLoginSuccess={setUser} />}
+      </Route>
+      <Route path="/auth/voter">
+        {user ? <Redirect to="/voter" /> : <VoterLogin onLoginSuccess={setUser} />}
+      </Route>
+      <Route path="/auth/candidate">
+        {user ? <Redirect to="/candidate" /> : <CandidateLogin onLoginSuccess={setUser} />}
+      </Route>
+      
+      {/* Admin routes */}
+      <Route path="/admin">
+        <ProtectedRoute user={user} expectedRole="admin" component={AdminDashboard} onLogout={handleLogout} />
+      </Route>
+      <Route path="/admin/elections">
+        <ProtectedRoute user={user} expectedRole="admin" component={AdminElections} onLogout={handleLogout} />
+      </Route>
+      <Route path="/admin/candidates">
+        <ProtectedRoute user={user} expectedRole="admin" component={AdminCandidates} onLogout={handleLogout} />
+      </Route>
+      <Route path="/admin/voters">
+        <ProtectedRoute user={user} expectedRole="admin" component={AdminVoters} onLogout={handleLogout} />
+      </Route>
+      <Route path="/admin/results">
+        <ProtectedRoute user={user} expectedRole="admin" component={AdminResults} onLogout={handleLogout} />
+      </Route>
+      
+      {/* Voter routes */}
+      <Route path="/voter">
+        <ProtectedRoute user={user} expectedRole="voter" component={VoterDashboard} onLogout={handleLogout} />
+      </Route>
+      
+      {/* Candidate routes */}
+      <Route path="/candidate">
+        <ProtectedRoute user={user} expectedRole="candidate" component={CandidateDashboard} onLogout={handleLogout} />
+      </Route>
+      
+      {/* Catch-all route for 404 */}
       <Route component={NotFound} />
     </Switch>
   );
