@@ -12,13 +12,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -93,27 +86,15 @@ export default function RegisterForm({ onRegisterSuccess, defaultRole = "voter" 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Hidden role field - set by the page context */}
         <FormField
           control={form.control}
           name="role"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Register as</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="voter">Voter</SelectItem>
-                  <SelectItem value="candidate">Candidate</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
+            <FormItem className="hidden">
+              <FormControl>
+                <Input type="hidden" {...field} />
+              </FormControl>
             </FormItem>
           )}
         />
