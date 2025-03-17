@@ -60,26 +60,6 @@ export default function StatusCard({ application }: StatusCardProps) {
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Candidate Information</h3>
-            <div className="mt-2 grid grid-cols-1 gap-1">
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">Name:</span>
-                <span className="font-medium">{application.user.name}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600">Student ID:</span>
-                <span className="font-medium">{application.user.studentId}</span>
-              </div>
-              {application.user.department && (
-                <div className="flex justify-between py-1">
-                  <span className="text-gray-600">Department:</span>
-                  <span className="font-medium">{application.user.department}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div>
             <h3 className="text-sm font-medium text-gray-500">Your Manifesto</h3>
             <div className="mt-2 p-3 bg-gray-50 rounded-md">
               <p className="text-sm text-gray-700 whitespace-pre-line">{application.manifesto}</p>
