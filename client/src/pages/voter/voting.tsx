@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import CandidateCard from "@/components/CandidateCard";
 import VoteConfirmation from "@/components/VoteConfirmation";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 
 interface VotingProps {
-  electionId: number;
-  user: {
+  electionId?: number;
+  user?: {
     id: number;
     username: string;
     role: string;
@@ -49,11 +49,9 @@ export default function Voting({ electionId, user }: VotingProps) {
   const [_, navigate] = useLocation();
   const { toast } = useToast();
 
-  // Check if user has already voted
-  const { data: ballot, isLoading, error } = useQuery({
+  const { data: ballot, isLoading } = useQuery({
     queryKey: [`/api/elections/${electionId}/positions`],
     onError: (error) => {
-      // If error is about already voted, redirect to results
       if (error instanceof Error && error.message.includes('already voted')) {
         toast({
           title: "Already Voted",
@@ -65,121 +63,75 @@ export default function Voting({ electionId, user }: VotingProps) {
   });
 
   const voteMutation = useMutation({
-    mutationFn: async (votes: { positionId: number; candidateId: number }[]) => {
+    mutationFn: async (votes: { candidateId: number, positionId: number }[]) => {
       return await apiRequest('POST', '/api/vote', {
-        electionId,
+        electionId: Number(electionId),
         votes
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries();
-      setShowConfirmation(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/elections'] });
       toast({
-        title: "Vote Submitted",
+        title: "Success",
         description: "Your vote has been recorded successfully.",
       });
       navigate(`/voter/results/${electionId}`);
     },
     onError: (error) => {
-      setShowConfirmation(false);
       toast({
         title: "Error",
-        description: "Failed to submit your vote. Please try again.",
+        description: "Failed to cast vote. Please try again.",
         variant: "destructive",
       });
     }
   });
 
-  const handleCandidateSelect = (positionId: number, candidateId: number) => {
-    setSelectedCandidates((prev) => ({
-      ...prev,
-      [positionId]: candidateId
-    }));
-  };
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-  const handleVoteSubmit = () => {
-    setShowConfirmation(true);
-  };
-
-  const handleConfirmVote = () => {
+  const handleConfirmVote = async () => {
     const votes = Object.entries(selectedCandidates).map(([positionId, candidateId]) => ({
       positionId: Number(positionId),
       candidateId
     }));
-
-    voteMutation.mutate(votes);
+    await voteMutation.mutateAsync(votes);
   };
-
-  // Check if all positions have a selected candidate
-  const allPositionsSelected = ballot?.ballot?.every(
-    (section: BallotSection) => selectedCandidates[section.position.id]
-  );
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center p-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error || !ballot) {
-    return (
-      <div className="text-center p-12">
-        <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Ballot</h2>
-        <p className="text-gray-600">Unable to load the election ballot. Please try again later.</p>
-        <Button className="mt-4" onClick={() => navigate("/voter")}>
-          Return to Elections
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <>
-      <div className="mb-6">
-        <Card>
-          <CardContent className="pt-5 border-b border-gray-200">
-            <h1 className="text-xl font-semibold text-gray-900">
-              {ballot.election.title}
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Please vote for one candidate per position
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">{ballot.election.title}</h1>
 
-      {ballot.ballot.map((section: BallotSection) => (
-        <div key={section.position.id} className="mb-8">
-          <h2 className="text-xl font-medium text-gray-900 mb-4">{section.position.title}</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {section.candidates.map((candidate: Candidate) => (
-              <CandidateCard
-                key={candidate.id}
-                candidate={candidate}
-                isSelected={selectedCandidates[section.position.id] === candidate.id}
-                onSelect={() => handleCandidateSelect(section.position.id, candidate.id)}
-              />
-            ))}
-            {section.candidates.length === 0 && (
-              <Card className="col-span-full">
-                <CardContent className="pt-6 text-center p-8 text-gray-500">
-                  No candidates are running for this position
-                </CardContent>
-              </Card>
-            )}
+        {ballot.ballot.map((position: any) => (
+          <div key={position.position.id} className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">{position.position.title}</h2>
+            <div className="grid gap-4">
+              {position.candidates.map((candidate: any) => (
+                <Card key={candidate.id} className="p-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium">{candidate.name}</h3>
+                      <p className="text-sm text-gray-600">{candidate.manifesto}</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setSelectedCandidates(prev => ({
+                          ...prev,
+                          [position.position.id]: candidate.id
+                        }));
+                        setShowConfirmation(true);
+                      }}
+                      disabled={selectedCandidates[position.position.id] === candidate.id}
+                    >
+                      {selectedCandidates[position.position.id] === candidate.id ? 'Selected' : 'Select'}
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
-
-      <div className="mt-8 flex justify-end">
-        <Button 
-          onClick={handleVoteSubmit} 
-          disabled={!allPositionsSelected}
-        >
-          Submit Votes
-        </Button>
+        ))}
       </div>
 
       {/* Vote Confirmation Modal */}
@@ -192,90 +144,5 @@ export default function Voting({ electionId, user }: VotingProps) {
         isSubmitting={voteMutation.isPending}
       />
     </>
-  );
-}
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
-import { useParams } from "wouter";
-
-export default function Voting() {
-  const { electionId } = useParams();
-  const { toast } = useToast();
-  const [votedCandidates, setVotedCandidates] = useState<number[]>([]);
-
-  const { data: ballot } = useQuery({
-    queryKey: ['/api/elections', electionId, 'ballot'],
-    enabled: !!electionId
-  });
-
-  const handleVote = async (candidateId: number, positionId: number) => {
-    try {
-      const response = await fetch('/api/vote', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          electionId: Number(electionId),
-          votes: [{
-            candidateId,
-            positionId
-          }]
-        })
-      });
-
-      if (response.ok) {
-        setVotedCandidates(prev => [...prev, candidateId]);
-        toast({
-          title: "Success",
-          description: "Your vote has been recorded",
-        });
-      } else {
-        throw new Error('Failed to submit vote');
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to submit vote. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  if (!ballot) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">{ballot.election.title}</h1>
-      
-      {ballot.ballot.map((position: any) => (
-        <div key={position.position.id} className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{position.position.title}</h2>
-          <div className="grid gap-4">
-            {position.candidates.map((candidate: any) => (
-              <Card key={candidate.id} className="p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-medium">{candidate.name}</h3>
-                    <p className="text-sm text-gray-600">{candidate.manifesto}</p>
-                  </div>
-                  <Button
-                    onClick={() => handleVote(candidate.id, position.position.id)}
-                    disabled={votedCandidates.includes(candidate.id)}
-                  >
-                    {votedCandidates.includes(candidate.id) ? 'Voted' : 'Vote'}
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
   );
 }
