@@ -8,10 +8,7 @@ interface StatusCardProps {
     id: number;
     status: string;
     manifesto: string;
-    position: {
-      id: number;
-      title: string;
-    };
+    position: string;
     user: {
       id: number;
       name: string;
@@ -36,7 +33,7 @@ export default function StatusCard({ application }: StatusCardProps) {
           <div className="flex justify-between items-start">
             <div>
               <h3 className="text-sm font-medium text-gray-500">Position</h3>
-              <p className="mt-1 text-lg font-semibold">{application.position.title}</p>
+              <p className="mt-1 text-lg font-semibold">{application.position}</p>
             </div>
             <div>
               {application.status === 'pending' && (
