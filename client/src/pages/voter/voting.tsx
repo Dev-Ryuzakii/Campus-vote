@@ -194,3 +194,88 @@ export default function Voting({ electionId, user }: VotingProps) {
     </>
   );
 }
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { useParams } from "wouter";
+
+export default function Voting() {
+  const { electionId } = useParams();
+  const { toast } = useToast();
+  const [votedCandidates, setVotedCandidates] = useState<number[]>([]);
+
+  const { data: ballot } = useQuery({
+    queryKey: ['/api/elections', electionId, 'ballot'],
+    enabled: !!electionId
+  });
+
+  const handleVote = async (candidateId: number, positionId: number) => {
+    try {
+      const response = await fetch('/api/vote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          electionId: Number(electionId),
+          votes: [{
+            candidateId,
+            positionId
+          }]
+        })
+      });
+
+      if (response.ok) {
+        setVotedCandidates(prev => [...prev, candidateId]);
+        toast({
+          title: "Success",
+          description: "Your vote has been recorded",
+        });
+      } else {
+        throw new Error('Failed to submit vote');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit vote. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (!ballot) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">{ballot.election.title}</h1>
+      
+      {ballot.ballot.map((position: any) => (
+        <div key={position.position.id} className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">{position.position.title}</h2>
+          <div className="grid gap-4">
+            {position.candidates.map((candidate: any) => (
+              <Card key={candidate.id} className="p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-medium">{candidate.name}</h3>
+                    <p className="text-sm text-gray-600">{candidate.manifesto}</p>
+                  </div>
+                  <Button
+                    onClick={() => handleVote(candidate.id, position.position.id)}
+                    disabled={votedCandidates.includes(candidate.id)}
+                  >
+                    {votedCandidates.includes(candidate.id) ? 'Voted' : 'Vote'}
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

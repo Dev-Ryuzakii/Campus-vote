@@ -1,3 +1,4 @@
+
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -30,12 +31,19 @@ export default function StatusCard({ application }: StatusCardProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Position</h3>
-              <p className="mt-1 text-lg font-semibold">{application.position}</p>
-            </div>
-            <div>
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Election</h3>
+            <p className="mt-1 text-lg font-semibold">{application.election.title}</p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Position</h3>
+            <p className="mt-1 text-lg font-semibold">{application.position}</p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Status</h3>
+            <div className="mt-2">
               {application.status === 'pending' && (
                 <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
                   Pending Review
@@ -55,11 +63,6 @@ export default function StatusCard({ application }: StatusCardProps) {
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-gray-500">Election</h3>
-            <p className="mt-1 text-lg font-semibold">{application.election.title}</p>
-          </div>
-
-          <div>
             <h3 className="text-sm font-medium text-gray-500">Your Manifesto</h3>
             <div className="mt-2 p-3 bg-gray-50 rounded-md">
               <p className="text-sm text-gray-700 whitespace-pre-line">{application.manifesto}</p>
@@ -71,7 +74,7 @@ export default function StatusCard({ application }: StatusCardProps) {
               <AlertCircle className="h-4 w-4 text-yellow-800" />
               <AlertTitle className="text-yellow-800">Application Under Review</AlertTitle>
               <AlertDescription className="text-yellow-700">
-                Your application is currently being reviewed by the election administrators. You'll be notified once a decision has been made.
+                Your application is currently being reviewed by the election administrators.
               </AlertDescription>
             </Alert>
           )}
@@ -81,7 +84,7 @@ export default function StatusCard({ application }: StatusCardProps) {
               <CheckCircle className="h-4 w-4 text-green-800" />
               <AlertTitle className="text-green-800">Application Approved!</AlertTitle>
               <AlertDescription className="text-green-700">
-                Congratulations! Your application has been approved. You are now officially a candidate for the {application.position} position.
+                Congratulations! Your application has been approved.
               </AlertDescription>
             </Alert>
           )}
@@ -91,7 +94,7 @@ export default function StatusCard({ application }: StatusCardProps) {
               <XCircle className="h-4 w-4 text-red-800" />
               <AlertTitle className="text-red-800">Application Rejected</AlertTitle>
               <AlertDescription className="text-red-700">
-                We regret to inform you that your application was not approved at this time. For more information, please contact the election administrators.
+                We regret to inform you that your application was not approved.
               </AlertDescription>
             </Alert>
           )}
