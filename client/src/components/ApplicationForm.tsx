@@ -218,36 +218,17 @@ export default function ApplicationForm({ studentId }: ApplicationFormProps) {
 
         <FormField
           control={form.control}
-          name="positionId"
+          name="position"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Position</FormLabel>
-              <Select 
-                onValueChange={field.onChange} 
-                defaultValue={field.value}
-                disabled={!form.watch('electionId') || positionsLoading}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a position" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {!form.watch('electionId') ? (
-                    <SelectItem value="none" disabled>Select an election first</SelectItem>
-                  ) : positionsLoading ? (
-                    <SelectItem value="loading" disabled>Loading positions...</SelectItem>
-                  ) : !positions || positions.length === 0 ? (
-                    <SelectItem value="none" disabled>No positions available</SelectItem>
-                  ) : (
-                    positions.map((position: any) => (
-                      <SelectItem key={position.id} value={position.id.toString()}>
-                        {position.title}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <Input 
+                  placeholder="Enter your desired position" 
+                  {...field}
+                  disabled={!form.watch('electionId')}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
