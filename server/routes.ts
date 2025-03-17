@@ -549,7 +549,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         user = await storage.createUser({
           username: email,
-          password: studentId, // In real app, should use a secure password
+          password: studentId,
           role: 'candidate',
           studentId,
           name: `${firstName} ${lastName}`,
@@ -560,7 +560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if already applied
       const existingApplications = await storage.getCandidatesByUser(user.id);
       const alreadyApplied = existingApplications.some(
-        c => c.positionId === positionId && c.electionId === electionId
+        c => c.position === position && c.electionId === electionId
       );
       
       if (alreadyApplied) {

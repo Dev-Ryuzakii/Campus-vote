@@ -31,7 +31,7 @@ const applicationSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
   studentId: z.string().min(1, "Student ID is required"),
-  positionId: z.string().min(1, "Position is required"),
+  position: z.string().min(1, "Position is required"),
   manifesto: z.string().min(20, "Manifesto must be at least 20 characters"),
   department: z.string().optional(),
   electionId: z.string().min(1, "Election is required"),
@@ -56,7 +56,7 @@ export default function ApplicationForm({ studentId }: ApplicationFormProps) {
       studentId,
       department: "",
       manifesto: "",
-      positionId: "",
+      position: "",
       electionId: "",
     },
   });
@@ -83,7 +83,7 @@ export default function ApplicationForm({ studentId }: ApplicationFormProps) {
     mutationFn: async (data: ApplicationFormValues) => {
       return await apiRequest('POST', '/api/candidates/apply', {
         ...data,
-        positionId: parseInt(data.positionId),
+        // positionId: parseInt(data.positionId),  //This line is removed because positionId is no longer used.
         electionId: parseInt(data.electionId),
       });
     },
