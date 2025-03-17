@@ -1,7 +1,7 @@
+import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
 
 interface StatusCardProps {
   application: {
@@ -9,11 +9,11 @@ interface StatusCardProps {
     status: string;
     manifesto: string;
     position: string;
-    user: {
-      id: number;
-      name: string;
-      studentId: string;
-      department: string;
+    election: {
+      title: string;
+      startDate: string;
+      endDate: string;
+      status: string;
     };
   };
 }
@@ -52,6 +52,11 @@ export default function StatusCard({ application }: StatusCardProps) {
                 </Badge>
               )}
             </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Election</h3>
+            <p className="mt-1 text-lg font-semibold">{application.election.title}</p>
           </div>
 
           <div>
@@ -96,7 +101,7 @@ export default function StatusCard({ application }: StatusCardProps) {
               <CheckCircle className="h-4 w-4 text-green-800" />
               <AlertTitle className="text-green-800">Application Approved!</AlertTitle>
               <AlertDescription className="text-green-700">
-                Congratulations! Your application has been approved. You are now officially a candidate for the {application.position.title} position.
+                Congratulations! Your application has been approved. You are now officially a candidate for the {application.position} position.
               </AlertDescription>
             </Alert>
           )}
