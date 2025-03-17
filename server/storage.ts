@@ -87,11 +87,11 @@ export class MemStorage implements IStorage {
       eligibleVoters: 1
     };
 
-    // Initialize with admin user (ID 1)
+    // Initialize with admin user only
     const adminUser: User = {
       id: 1,
       username: 'admin',
-      password: 'admin123', // In real app, this should be hashed
+      password: 'admin123',
       role: 'admin',
       studentId: null,
       department: null,
@@ -99,7 +99,7 @@ export class MemStorage implements IStorage {
       hasVoted: false
     };
     this.users.set(1, adminUser);
-    this.currentIds.users = 2; // Next ID will be 2
+    this.currentIds.users = 2;
   }
 
   // User operations

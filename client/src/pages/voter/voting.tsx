@@ -51,7 +51,7 @@ export default function Voting({ electionId, user }: VotingProps) {
 
   // Check if user has already voted
   const { data: ballot, isLoading, error } = useQuery({
-    queryKey: [`/api/elections/${electionId}/ballot`],
+    queryKey: [`/api/elections/${electionId}/positions`],
     onError: (error) => {
       // If error is about already voted, redirect to results
       if (error instanceof Error && error.message.includes('already voted')) {

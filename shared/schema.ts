@@ -190,7 +190,7 @@ export const candidateApplicationSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
   studentId: z.string().min(1, "Student ID is required"),
-  position: z.string().min(1, "Position is required"),
+  position: z.string().min(1, "Position title is required"),
   manifesto: z.string().min(20, "Manifesto must be at least 20 characters"),
   electionId: z.number().min(1),
 });

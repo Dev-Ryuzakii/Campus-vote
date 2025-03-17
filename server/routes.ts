@@ -540,7 +540,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/candidates/apply', requireAuth, async (req: Request, res: Response) => {
     try {
       const validatedData = candidateApplicationSchema.parse(req.body);
-      const { firstName, lastName, email, studentId, positionId, manifesto, electionId } = validatedData;
+      const { firstName, lastName, email, studentId, position, manifesto, electionId } = validatedData;
       
       // Check if user exists
       let user = await storage.getUserByStudentId(studentId);
