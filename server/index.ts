@@ -62,15 +62,16 @@ app.use((req, res, next) => {
       server.listen(port, "0.0.0.0", () => {
         log(`Server running at http://0.0.0.0:${port}`);
       }).on('error', (err: any) => {
-      if (err.code === 'EADDRINUSE') {
-        log(`Error: Port ${port} is already in use`);
-      } else if (err.code === 'EACCES') {
-        log(`Error: Need elevated privileges to bind to port ${port}`);
-      } else {
-        log(`Error starting server: ${err.message}`);
-      }
-      process.exit(1);
-    });
+        if (err.code === 'EADDRINUSE') {
+          log(`Error: Port ${port} is already in use`);
+        } else if (err.code === 'EACCES') {
+          log(`Error: Need elevated privileges to bind to port ${port}`);
+        } else {
+          log(`Error starting server: ${err.message}`);
+        }
+        process.exit(1);
+      });
+    }
   } catch (error) {
     log(`Fatal error: ${error}`);
     process.exit(1);
