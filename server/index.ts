@@ -56,12 +56,12 @@ app.use((req, res, next) => {
     }
 
     // Use environment port or fallback to 5000
-    const port = process.env.PORT || 5000;
-
-    // More detailed error handling for server startup
-    server.listen(port, "127.0.0.1", () => {
-      log(`Server running at http://127.0.0.1:${port}`);
-    }).on('error', (err: any) => {
+    // Only start server if not in Vercel environment
+    if (process.env.VERCEL !== '1') {
+      const port = process.env.PORT || 5000;
+      server.listen(port, "0.0.0.0", () => {
+        log(`Server running at http://0.0.0.0:${port}`);
+      }).on('error', (err: any) => {
       if (err.code === 'EADDRINUSE') {
         log(`Error: Port ${port} is already in use`);
       } else if (err.code === 'EACCES') {
